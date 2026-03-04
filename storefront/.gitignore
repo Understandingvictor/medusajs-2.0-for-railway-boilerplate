@@ -43,8 +43,7 @@ yarn-error.log*
 *.tsbuildinfo
 node_modules
 
-.yarn/*
-!.yarn/releases
+.yarn
 .swc
 dump.rdb
 /test-results/

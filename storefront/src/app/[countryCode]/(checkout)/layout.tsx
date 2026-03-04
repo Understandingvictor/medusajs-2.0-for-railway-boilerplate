@@ -26,33 +26,15 @@ export default function CheckoutLayout({
           </LocalizedClientLink>
           <LocalizedClientLink
             href="/"
-            className="flex items-center gap-x-3 hover:opacity-80 transition-opacity"
+            className="txt-compact-xlarge-plus text-ui-fg-subtle hover:text-ui-fg-base uppercase"
             data-testid="store-link"
           >
-            {/* The Keddy Signature Blinking Status */}
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#800020] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#800020]"></span>
-            </span>
-
-            <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-x-2">
-              {/* Main Brand - Large & Bold */}
-              <span className="text-xl md:text-2xl font-black italic uppercase tracking-tighter text-ui-fg-base leading-none">
-                KEDDY
-              </span>
-
-              {/* Secondary Name - Smaller & Wine Red */}
-              <span className="text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-[#800020] leading-none">
-                COLLECTIONS
-              </span>
-            </div>
+            Medusa Store
           </LocalizedClientLink>
           <div className="flex-1 basis-0" />
         </nav>
       </div>
-      <div className="relative" data-testid="checkout-container">
-        {children}
-      </div>
+      <div className="relative" data-testid="checkout-container">{children}</div>
       <div className="py-4 w-full flex items-center justify-center">
         <MedusaCTA />
       </div>
