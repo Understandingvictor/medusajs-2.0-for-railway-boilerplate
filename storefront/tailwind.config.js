@@ -23,9 +23,17 @@ module.exports = {
       colors: {
         // --- KEDDY COLLECTIONS SIGNATURE COLORS ---
         brand: {
-          wine: "#722F37", // Your signature Wine Red
-          dark: "#5A1E25",
-          light: "#8B414B",
+          wine: "#722F37", // Signature Wine Red
+          dark: "#4A1C22", // Darker accent
+          cream: "#F9F6F2", // Luxury background
+          slate: "#334155", // Elegant text
+        },
+        borderRadius: {
+          "2xl": "1.5rem", // Softer luxury corners
+        },
+        animation: {
+          "fade-in": "fadeIn 1s ease-out forwards",
+          "scale-up": "scaleUp 0.3s ease-out forwards",
         },
         grey: {
           0: "#FFFFFF",
