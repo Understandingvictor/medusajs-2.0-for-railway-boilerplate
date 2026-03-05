@@ -1,77 +1,98 @@
-import { listCategories } from "@lib/data/categories"
-import { listCollections } from "@lib/data/collections"
+import { getCategoriesList } from "@lib/data/categories"
+import { getCollectionsList } from "@lib/data/collections"
 import { Text, clx } from "@medusajs/ui"
-import { Facebook, MessageCircle, ArrowRight } from "lucide-react" // Ensure lucide-react is installed
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import MedusaCTA from "@modules/layout/components/medusa-cta"
 
 export default async function Footer() {
-  const { collections } = await listCollections({
-    fields: "*products",
-  })
-  const productCategories = await listCategories()
+  const { collections } = await getCollectionsList(0, 6)
+  const { product_categories } = await getCategoriesList(0, 6)
 
   return (
-    <footer className="border-t border-ui-border-base w-full bg-white dark:bg-[#0a0a0a]">
+    <footer className="border-t border-ui-border-base w-full">
       <div className="content-container flex flex-col w-full">
-        <div className="flex flex-col gap-y-12 xsmall:flex-row items-start justify-between py-24 md:py-32">
-          
-          {/* BRAND IDENTITY */}
-          <div className="flex flex-col gap-y-4 max-w-[280px]">
+        <div className="flex flex-col gap-y-6 xsmall:flex-row items-start justify-between py-40">
+          <div>
             <LocalizedClientLink
               href="/"
-              className="text-2xl font-black italic tracking-tighter uppercase group"
+              className="txt-compact-xlarge-plus text-ui-fg-subtle hover:text-ui-fg-base uppercase"
             >
-              KEDDY <span className="text-brand-wine group-hover:text-ui-fg-base transition-colors">KOLLECTIONS</span>
+              Medusa Store
             </LocalizedClientLink>
-            <Text className="text-ui-fg-subtle text-sm leading-relaxed">
-              Curating luxury essentials for the modern wardrobe. Defined by quality, driven by heritage.
-            </Text>
-            
-            {/* SOCIALS */}
-            <div className="flex gap-x-4 mt-2">
-              <a href="https://facebook.com" target="_blank" rel="noreferrer" className="p-2 bg-ui-bg-subtle hover:bg-brand-wine hover:text-white transition-all duration-300">
-                <Facebook size={18} />
-              </a>
-              <a href="https://wa.me/yourphonenumber" target="_blank" rel="noreferrer" className="p-2 bg-ui-bg-subtle hover:bg-[#25D366] hover:text-white transition-all duration-300">
-                <MessageCircle size={18} />
-              </a>
-            </div>
           </div>
+          <div className="text-small-regular gap-10 md:gap-x-16 grid grid-cols-2 sm:grid-cols-3">
+            {product_categories && product_categories?.length > 0 && (
+              <div className="flex flex-col gap-y-2">
+                <span className="txt-small-plus txt-ui-fg-base">
+                  Categories
+                </span>
+                <ul
+                  className="grid grid-cols-1 gap-2"
+                  data-testid="footer-categories"
+                >
+                  {product_categories?.slice(0, 6).map((c) => {
+                    if (c.parent_category) {
+                      return
+                    }
 
-          <div className="text-small-regular gap-10 md:gap-x-16 grid grid-cols-2 sm:grid-cols-3 w-full xsmall:w-auto">
-            
-            {/* ESSENTIALS / SPECIAL ORDERS */}
-            <div className="flex flex-col gap-y-4">
-              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-brand-wine">
-                Services
-              </span>
-              <ul className="grid grid-cols-1 gap-y-3 text-ui-fg-subtle txt-small">
-                <li>
-                  <LocalizedClientLink href="/custom-order" className="hover:text-ui-fg-base flex items-center gap-2 group">
-                    Custom Order <ArrowRight size={12} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
-                  </LocalizedClientLink>
-                </li>
-                <li>
-                  <LocalizedClientLink href="/preorder" className="hover:text-ui-fg-base">
-                    Preorder Latest
-                  </LocalizedClientLink>
-                </li>
-                <li>
-                  <LocalizedClientLink href="/shipping" className="hover:text-ui-fg-base">
-                    Worldwide Shipping
-                  </LocalizedClientLink>
-                </li>
-              </ul>
-            </div>
+                    const children =
+                      c.category_children?.map((child) => ({
+                        name: child.name,
+                        handle: child.handle,
+                        id: child.id,
+                      })) || null
 
-            {/* COLLECTIONS */}
+                    return (
+                      <li
+                        className="flex flex-col gap-2 text-ui-fg-subtle txt-small"
+                        key={c.id}
+                      >
+                        <LocalizedClientLink
+                          className={clx(
+                            "hover:text-ui-fg-base",
+                            children && "txt-small-plus"
+                          )}
+                          href={`/categories/${c.handle}`}
+                          data-testid="category-link"
+                        >
+                          {c.name}
+                        </LocalizedClientLink>
+                        {children && (
+                          <ul className="grid grid-cols-1 ml-3 gap-2">
+                            {children &&
+                              children.map((child) => (
+                                <li key={child.id}>
+                                  <LocalizedClientLink
+                                    className="hover:text-ui-fg-base"
+                                    href={`/categories/${child.handle}`}
+                                    data-testid="category-link"
+                                  >
+                                    {child.name}
+                                  </LocalizedClientLink>
+                                </li>
+                              ))}
+                          </ul>
+                        )}
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
+            )}
             {collections && collections.length > 0 && (
-              <div className="flex flex-col gap-y-4">
-                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-brand-wine">
+              <div className="flex flex-col gap-y-2">
+                <span className="txt-small-plus txt-ui-fg-base">
                   Collections
                 </span>
-                <ul className="grid grid-cols-1 gap-y-3 text-ui-fg-subtle txt-small">
+                <ul
+                  className={clx(
+                    "grid grid-cols-1 gap-2 text-ui-fg-subtle txt-small",
+                    {
+                      "grid-cols-2": (collections?.length || 0) > 3,
+                    }
+                  )}
+                >
                   {collections?.slice(0, 6).map((c) => (
                     <li key={c.id}>
                       <LocalizedClientLink
@@ -85,39 +106,48 @@ export default async function Footer() {
                 </ul>
               </div>
             )}
-
-            {/* CATEGORIES */}
-            {productCategories && productCategories?.length > 0 && (
-              <div className="flex flex-col gap-y-4">
-                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-brand-wine">
-                  Categories
-                </span>
-                <ul className="grid grid-cols-1 gap-y-3 text-ui-fg-subtle txt-small">
-                  {productCategories?.slice(0, 4).map((c) => (
-                    <li key={c.id}>
-                      <LocalizedClientLink
-                        className="hover:text-ui-fg-base"
-                        href={`/categories/${c.handle}`}
-                      >
-                        {c.name}
-                      </LocalizedClientLink>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <div className="flex flex-col gap-y-2">
+              <span className="txt-small-plus txt-ui-fg-base">Medusa</span>
+              <ul className="grid grid-cols-1 gap-y-2 text-ui-fg-subtle txt-small">
+                <li>
+                  <a
+                    href="https://github.com/medusajs"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-ui-fg-base"
+                  >
+                    GitHub
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://docs.medusajs.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-ui-fg-base"
+                  >
+                    Documentation
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/medusajs/nextjs-starter-medusa"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-ui-fg-base"
+                  >
+                    Source code
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
-
-        {/* BOTTOM BAR */}
-        <div className="flex flex-col md:flex-row w-full mb-16 justify-between items-center gap-y-4 pt-8 border-t border-ui-border-base text-ui-fg-muted">
-          <Text className="text-[11px] uppercase tracking-widest font-medium">
-            © {new Date().getFullYear()} Keddy Kollections. All rights reserved.
+        <div className="flex w-full mb-16 justify-between text-ui-fg-muted">
+          <Text className="txt-compact-small">
+            © {new Date().getFullYear()} Medusa Store. All rights reserved.
           </Text>
-          <div className="flex gap-x-8 text-[11px] uppercase tracking-widest font-medium">
-             <LocalizedClientLink href="/privacy" className="hover:text-brand-wine">Privacy</LocalizedClientLink>
-             <LocalizedClientLink href="/terms" className="hover:text-brand-wine">Terms</LocalizedClientLink>
-          </div>
+          <MedusaCTA />
         </div>
       </div>
     </footer>
