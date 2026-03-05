@@ -1,36 +1,46 @@
-"use client"
-
+import repeat from "@lib/util/repeat"
 import { HttpTypes } from "@medusajs/types"
 import { Heading, Table } from "@medusajs/ui"
+
 import Item from "@modules/cart/components/item"
+import SkeletonLineItem from "@modules/skeletons/components/skeleton-line-item"
 
-const ItemsTemplate = ({ cart }: { cart?: HttpTypes.StoreCart }) => {
-  const items = cart?.items
+type ItemsTemplateProps = {
+  items?: HttpTypes.StoreCartLineItem[]
+}
+
+const ItemsTemplate = ({ items }: ItemsTemplateProps) => {
   return (
-    <div className="flex flex-col gap-y-6">
-      <div className="pb-4 relative">
-        <Heading className="text-6xl md:text-8xl font-black italic uppercase tracking-tighter text-gray-900">
-          Cart
-        </Heading>
-        <div className="h-1.5 w-20 bg-[#800020] mt-2"></div>
+    <div>
+      <div className="pb-3 flex items-center">
+        <Heading className="text-[2rem] leading-[2.75rem]">Cart</Heading>
       </div>
-
-      <Table className="border-none w-full">
-        {/* HIDE HEADERS ON MOBILE - SHOW ON TABLET/DESKTOP */}
-      <Table.Header className="hidden sm:table-header-group border-b border-gray-200">
-    <Table.Row className="text-gray-400 uppercase text-[10px] tracking-[0.2em] font-bold">
-      <Table.HeaderCell className="!pl-0 w-2/5">Product</Table.HeaderCell>
-      <Table.HeaderCell className="w-1/5 text-center">Quantity</Table.HeaderCell>
-      <Table.HeaderCell className="w-1/5 text-right">Price</Table.HeaderCell>
-      <Table.HeaderCell className="!pr-0 text-right w-1/5">Total</Table.HeaderCell>
-    </Table.Row>
-  </Table.Header>
-        
-        <Table.Body className="border-none">
-          {items?.sort((a, b) => ((a.created_at ?? "") > (b.created_at ?? "") ? -1 : 1))
-            .map((item) => (
-              <Item key={item.id} item={item} currencyCode={cart?.currency_code || "USD"} />
-            ))}
+      <Table>
+        <Table.Header className="border-t-0">
+          <Table.Row className="text-ui-fg-subtle txt-medium-plus">
+            <Table.HeaderCell className="!pl-0">Item</Table.HeaderCell>
+            <Table.HeaderCell></Table.HeaderCell>
+            <Table.HeaderCell>Quantity</Table.HeaderCell>
+            <Table.HeaderCell className="hidden small:table-cell">
+              Price
+            </Table.HeaderCell>
+            <Table.HeaderCell className="!pr-0 text-right">
+              Total
+            </Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {items
+            ? items
+                .sort((a, b) => {
+                  return (a.created_at ?? "") > (b.created_at ?? "") ? -1 : 1
+                })
+                .map((item) => {
+                  return <Item key={item.id} item={item} />
+                })
+            : repeat(5).map((i) => {
+                return <SkeletonLineItem key={i} />
+              })}
         </Table.Body>
       </Table>
     </div>

@@ -3,48 +3,66 @@
 import { loadStripe } from "@stripe/stripe-js"
 import React from "react"
 import StripeWrapper from "./stripe-wrapper"
+import { PayPalScriptProvider } from "@paypal/react-paypal-js"
+import { createContext } from "react"
 import { HttpTypes } from "@medusajs/types"
-import { isStripeLike } from "@lib/constants"
+import { isPaypal, isStripe } from "@lib/constants"
 
-type PaymentWrapperProps = {
+type WrapperProps = {
   cart: HttpTypes.StoreCart
   children: React.ReactNode
 }
 
-const stripeKey =
-  process.env.NEXT_PUBLIC_STRIPE_KEY ||
-  process.env.NEXT_PUBLIC_MEDUSA_PAYMENTS_PUBLISHABLE_KEY
+export const StripeContext = createContext(false)
 
-const medusaAccountId = process.env.NEXT_PUBLIC_MEDUSA_PAYMENTS_ACCOUNT_ID
-const stripePromise = stripeKey
-  ? loadStripe(
-      stripeKey,
-      medusaAccountId ? { stripeAccount: medusaAccountId } : undefined
-    )
-  : null
+const stripeKey = process.env.NEXT_PUBLIC_STRIPE_KEY
+const stripePromise = stripeKey ? loadStripe(stripeKey) : null
 
-const PaymentWrapper: React.FC<PaymentWrapperProps> = ({ cart, children }) => {
+const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
+
+const Wrapper: React.FC<WrapperProps> = ({ cart, children }) => {
   const paymentSession = cart.payment_collection?.payment_sessions?.find(
     (s) => s.status === "pending"
   )
 
   if (
-    isStripeLike(paymentSession?.provider_id) &&
+    isStripe(paymentSession?.provider_id) &&
     paymentSession &&
     stripePromise
   ) {
     return (
-      <StripeWrapper
-        paymentSession={paymentSession}
-        stripeKey={stripeKey}
-        stripePromise={stripePromise}
+      <StripeContext.Provider value={true}>
+        <StripeWrapper
+          paymentSession={paymentSession}
+          stripeKey={stripeKey}
+          stripePromise={stripePromise}
+        >
+          {children}
+        </StripeWrapper>
+      </StripeContext.Provider>
+    )
+  }
+
+  if (
+    isPaypal(paymentSession?.provider_id) &&
+    paypalClientId !== undefined &&
+    cart
+  ) {
+    return (
+      <PayPalScriptProvider
+        options={{
+          "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "test",
+          currency: cart?.currency_code.toUpperCase(),
+          intent: "authorize",
+          components: "buttons",
+        }}
       >
         {children}
-      </StripeWrapper>
+      </PayPalScriptProvider>
     )
   }
 
   return <div>{children}</div>
 }
 
-export default PaymentWrapper
+export default Wrapper

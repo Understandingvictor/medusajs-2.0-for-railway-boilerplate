@@ -8,10 +8,9 @@ import Thumbnail from "@modules/products/components/thumbnail"
 
 type ItemProps = {
   item: HttpTypes.StoreCartLineItem | HttpTypes.StoreOrderLineItem
-  currencyCode: string
 }
 
-const Item = ({ item, currencyCode }: ItemProps) => {
+const Item = ({ item }: ItemProps) => {
   return (
     <Table.Row className="w-full" data-testid="product-row">
       <Table.Cell className="!pl-0 p-4 w-24">
@@ -25,9 +24,11 @@ const Item = ({ item, currencyCode }: ItemProps) => {
           className="txt-medium-plus text-ui-fg-base"
           data-testid="product-name"
         >
-          {item.product_title}
+          {item.title}
         </Text>
-        <LineItemOptions variant={item.variant} data-testid="product-variant" />
+        {item.variant && (
+          <LineItemOptions variant={item.variant} data-testid="product-variant" />
+        )}
       </Table.Cell>
 
       <Table.Cell className="!pr-0">
@@ -36,18 +37,10 @@ const Item = ({ item, currencyCode }: ItemProps) => {
             <Text className="text-ui-fg-muted">
               <span data-testid="product-quantity">{item.quantity}</span>x{" "}
             </Text>
-            <LineItemUnitPrice
-              item={item}
-              style="tight"
-              currencyCode={currencyCode}
-            />
+            <LineItemUnitPrice item={item} style="tight" />
           </span>
 
-          <LineItemPrice
-            item={item}
-            style="tight"
-            currencyCode={currencyCode}
-          />
+          <LineItemPrice item={item} style="tight" />
         </span>
       </Table.Cell>
     </Table.Row>

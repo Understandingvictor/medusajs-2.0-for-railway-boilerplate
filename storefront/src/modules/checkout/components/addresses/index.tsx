@@ -1,14 +1,16 @@
 "use client"
 
-import { setAddresses } from "@lib/data/cart"
-import compareAddresses from "@lib/util/compare-addresses"
 import { CheckCircleSolid } from "@medusajs/icons"
-import { HttpTypes } from "@medusajs/types"
 import { Heading, Text, useToggleState } from "@medusajs/ui"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+
 import Divider from "@modules/common/components/divider"
 import Spinner from "@modules/common/icons/spinner"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useActionState } from "react"
+
+import { setAddresses } from "@lib/data/cart"
+import compareAddresses from "@lib/util/compare-addresses"
+import { HttpTypes } from "@medusajs/types"
+import { useFormState } from "react-dom"
 import BillingAddress from "../billing_address"
 import ErrorMessage from "../error-message"
 import ShippingAddress from "../shipping-address"
@@ -37,25 +39,23 @@ const Addresses = ({
     router.push(pathname + "?step=address")
   }
 
-  const [message, formAction] = useActionState(setAddresses, null)
+  const [message, formAction] = useFormState(setAddresses, null)
 
   return (
     <div className="bg-white">
       <div className="flex flex-row items-center justify-between mb-6">
-        {/* HEADER: Updated to Signature Wine Red and Keddy Typography */}
         <Heading
           level="h2"
-          className="flex flex-row text-xl small:text-3xl font-black italic uppercase tracking-tighter gap-x-2 items-baseline text-[#800020] pr-2"
+          className="flex flex-row text-3xl-regular gap-x-2 items-baseline"
         >
           Shipping Address
-          {!isOpen && <CheckCircleSolid className="text-[#800020]" />}
+          {!isOpen && <CheckCircleSolid />}
         </Heading>
-
         {!isOpen && cart?.shipping_address && (
           <Text>
             <button
               onClick={handleEdit}
-              className="text-[#800020] hover:text-[#600018] font-bold uppercase tracking-widest text-xs transition-colors duration-200"
+              className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
               data-testid="edit-address-button"
             >
               Edit
@@ -63,7 +63,6 @@ const Addresses = ({
           </Text>
         )}
       </div>
-
       {isOpen ? (
         <form action={formAction}>
           <div className="pb-8">
@@ -78,7 +77,7 @@ const Addresses = ({
               <div>
                 <Heading
                   level="h2"
-                  className="text-2xl md:text-3xl font-black italic uppercase tracking-tighter gap-x-4 pb-6 pt-8 text-[#800020]"
+                  className="text-3xl-regular gap-x-4 pb-6 pt-8"
                 >
                   Billing address
                 </Heading>
@@ -86,29 +85,23 @@ const Addresses = ({
                 <BillingAddress cart={cart} />
               </div>
             )}
-
-            {/* Note: Ensure SubmitButton component is also styled with #800020 */}
-            <SubmitButton
-              className="mt-6 bg-[#800020] hover:bg-[#5a0016] text-white border-none uppercase font-black italic tracking-widest shadow-md transition-all active:scale-95 h-12 w-full sm:w-80 flex items-center justify-center"
-              data-testid="submit-address-button"
-            >
+            <SubmitButton className="mt-6" data-testid="submit-address-button">
               Continue to delivery
             </SubmitButton>
             <ErrorMessage error={message} data-testid="address-error-message" />
           </div>
         </form>
       ) : (
-        /* SUMMARY VIEW */
         <div>
           <div className="text-small-regular">
             {cart && cart.shipping_address ? (
               <div className="flex items-start gap-x-8">
-                <div className="flex flex-col md:flex-row items-start gap-y-6 md:gap-x-1 w-full">
+                <div className="flex items-start gap-x-1 w-full">
                   <div
-                    className="flex flex-col w-full md:w-1/3"
+                    className="flex flex-col w-1/3"
                     data-testid="shipping-address-summary"
                   >
-                    <Text className="txt-medium-plus text-gray-900 font-bold uppercase tracking-widest text-[10px] mb-2">
+                    <Text className="txt-medium-plus text-ui-fg-base mb-1">
                       Shipping Address
                     </Text>
                     <Text className="txt-medium text-ui-fg-subtle">
@@ -129,10 +122,10 @@ const Addresses = ({
                   </div>
 
                   <div
-                    className="flex flex-col w-full md:w-1/3"
+                    className="flex flex-col w-1/3 "
                     data-testid="shipping-contact-summary"
                   >
-                    <Text className="txt-medium-plus text-gray-900 font-bold uppercase tracking-widest text-[10px] mb-2">
+                    <Text className="txt-medium-plus text-ui-fg-base mb-1">
                       Contact
                     </Text>
                     <Text className="txt-medium text-ui-fg-subtle">
@@ -144,16 +137,16 @@ const Addresses = ({
                   </div>
 
                   <div
-                    className="flex flex-col w-full md:w-1/3"
+                    className="flex flex-col w-1/3"
                     data-testid="billing-address-summary"
                   >
-                    <Text className="txt-medium-plus text-gray-900 font-bold uppercase tracking-widest text-[10px] mb-2">
+                    <Text className="txt-medium-plus text-ui-fg-base mb-1">
                       Billing Address
                     </Text>
 
                     {sameAsBilling ? (
-                      <Text className="txt-medium text-ui-fg-subtle italic">
-                        Same as delivery address.
+                      <Text className="txt-medium text-ui-fg-subtle">
+                        Billing- and delivery address are the same.
                       </Text>
                     ) : (
                       <>
@@ -178,14 +171,14 @@ const Addresses = ({
                 </div>
               </div>
             ) : (
-              <div className="flex justify-center py-4">
-                <Spinner className="text-[#800020]" />
+              <div>
+                <Spinner />
               </div>
             )}
           </div>
         </div>
       )}
-      <Divider className="mt-8 border-gray-100" />
+      <Divider className="mt-8" />
     </div>
   )
 }
